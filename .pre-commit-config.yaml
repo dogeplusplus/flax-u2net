@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.2.0
     hooks:
     -   id: check-yaml
     -   id: check-json
@@ -9,10 +9,10 @@ repos:
     -   id: requirements-txt-fixer
     -   id: detect-private-key
 -   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: ''
+    rev: 'v1.6.0'
     hooks:
     -   id: autopep8
 -   repo: https://github.com/pycqa/flake8
-    rev: '3.9.2'
+    rev: '4.0.1'
     hooks:
     -   id: flake8
