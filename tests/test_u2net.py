@@ -21,10 +21,8 @@ def test_conv_block():
     key = random.PRNGKey(0)
     params = layer.init(key, x)
 
-    y, mutated_vars = layer.apply(params, x)
-
+    y = layer.apply(params, x)
     assert y.shape == (4, 128, 128, out)
-    assert "batch_stats" in mutated_vars.keys()
 
 
 def test_rsu_block():
@@ -38,8 +36,7 @@ def test_rsu_block():
     key = random.PRNGKey(0)
     params = block.init(key, x)
 
-    y, _ = block.apply(params, x)
-
+    y = block.apply(params, x)
     assert y.shape == (4, 128, 128, out)
 
 
@@ -53,21 +50,19 @@ def test_dilation_rsu_block():
     key = random.PRNGKey(0)
     params = block.init(key, x)
 
-    y, _ = block.apply(params, x)
-
+    y = block.apply(params, x)
     assert y.shape == (4, 32, 32, out)
 
 
 def test_upsample():
     x = jnp.ones((2, 32, 32, 3))
     y = upsample(x, 2)
-
     assert y.shape == (2, 64, 64, 3)
 
 
 def test_u2_net():
-    mid = 16
-    out = 64
+    mid = [8] * 11
+    out = 4
     kernel = (3, 3)
 
     x = jnp.ones((4, 256, 256, 3))
@@ -75,7 +70,7 @@ def test_u2_net():
     key = random.PRNGKey(0)
     params = model.init(key, x)
 
-    saliency_maps, _ = model.apply(params, x)
+    saliency_maps = model.apply(params, x)
     assert saliency_maps.shape == (4, 256, 256, 7)
     assert jnp.max(saliency_maps) <= 1
     assert jnp.min(saliency_maps) >= 0
