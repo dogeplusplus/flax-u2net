@@ -6,9 +6,6 @@ import flax.linen as nn
 from dataclasses import field
 
 
-IMAGE_SIZE = 128
-
-
 def upsample(x: jnp.ndarray, factor: int) -> jnp.ndarray:
     B, H, W, C = x.shape
     x = jax.image.resize(x, (B, H * factor, W * factor, C), method="bilinear")

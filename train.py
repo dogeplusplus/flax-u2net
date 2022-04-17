@@ -17,9 +17,6 @@ from u2net.model import U2Net
 from u2net.dataset import duts_dataset
 
 
-IMAGE_SIZE = 320
-
-
 def bce_loss(preds: jnp.ndarray, labels: jnp.ndarray) -> float:
     EPS = 1e-8
     preds = jnp.clip(preds, EPS, 1 - EPS)
@@ -28,6 +25,7 @@ def bce_loss(preds: jnp.ndarray, labels: jnp.ndarray) -> float:
 
 
 def main():
+    IMAGE_SIZE = 320
     img_dir = Path("..", "..", "Downloads", "DUTS-TR", "DUTS-TR-Image")
     label_dir = Path("..", "..", "Downloads", "DUTS-TR", "DUTS-TR-Mask")
     date = datetime.datetime.now().strftime("%Y%m%d-%H:%M:%S")

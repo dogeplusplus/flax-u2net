@@ -6,7 +6,7 @@ authors = ["dogeplusplus <albertswchung@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-jax = "^0.3.7"
+jax = "0.3.5"
 optax = "^0.1.2"
 flax = "^0.4.1"
 tensorflow = "^2.8.0"
