@@ -39,7 +39,7 @@ def main():
     sample_train_img, sample_train_lab = next(iter(train_ds))
     sample_val_img, sample_val_lab = next(iter(val_ds))
 
-    epochs = 1
+    epochs = 30
     mid = [64] * 11
     out = 64
     kernel = (3, 3)

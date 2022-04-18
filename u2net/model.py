@@ -168,7 +168,7 @@ class U2Net(nn.Module):
         sup1 = SideSaliency((B, H, W, 1))(de1)
 
         fused = jnp.concatenate([sup1, sup2, sup3, sup4, sup5, sup6], axis=-1)
-        fused = nn.Conv(1, (3, 3))(fused)
+        fused = nn.Conv(1, self.kernel)(fused)
         out = jax.nn.sigmoid(fused)
 
         return jnp.concatenate([out, sup1, sup2, sup3, sup4, sup5, sup6], axis=-1)

@@ -1,9 +1,12 @@
+import math
+import typing as t
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 from pathlib import Path
 
 
-def normalize_image(img, a=-1, b=1):
+def normalize_image(img: tf.Tensor, a=-1, b=1) -> tf.Tensor:
     lower = tf.reduce_min(img)
     upper = tf.reduce_max(img)
     img = (img - lower) / (upper - lower)
@@ -11,12 +14,30 @@ def normalize_image(img, a=-1, b=1):
     return img
 
 
-def parse_image(filename, channels=3):
+def parse_image(filename: str, channels=3) -> tf.Tensor:
     image = tf.io.read_file(filename)
     image = tf.io.decode_image(image, channels, expand_animations=False)
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = tf.image.resize(image, [320, 320])
     return image
+
+
+def augmentation(images: tf.Tensor, labels: tf.Tensor) -> t.Tuple[tf.Tensor, tf.Tensor]:
+    if tf.random.uniform([]) > 0.5:
+        images = tf.image.flip_left_right(images)
+        labels = tf.image.flip_left_right(labels)
+
+    if tf.random.uniform([]) > 0.5:
+        delta = tf.random.uniform([], maxval=0.2)
+        images = tf.image.adjust_brightness(images, delta)
+        labels = tf.image.adjust_brightness(labels, delta)
+
+    if tf.random.uniform([]) > 0.5:
+        angle = tf.random.uniform([], 0, math.pi/6)
+        images = tfa.image.rotate(images, angle)
+        labels = tfa.image.rotate(labels, angle)
+
+    return images, labels
 
 
 def duts_dataset(
@@ -44,6 +65,8 @@ def duts_dataset(
 
     val_ds = ds.take(val_size)
     train_ds = ds.skip(val_size)
+
+    train_ds = train_ds.map(augmentation)
 
     train_ds = (
         train_ds.shuffle(shuffle_buffer, reshuffle_each_iteration=True)
