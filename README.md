@@ -6,3 +6,6 @@
 - Using Tensorflow Dataset API For data loading.
 - DUTS dataset found [here](http://saliencydetection.net/duts/#org3aad434)
 - Attempt to generalize the RSU Block to avoid duplication of code for varying levels
+
+Below is an example where the model detects the blini (a type of Russian pancake) instead of the cat.
+![blini cat](u2net_blini_cat.png)
