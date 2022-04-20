@@ -26,14 +26,17 @@ def bce_loss(preds: jnp.ndarray, labels: jnp.ndarray) -> float:
 
 
 def main():
-    IMAGE_SIZE = 320
+    model_instances = "models"
+    image_size = 128
     img_dir = Path("..", "..", "Downloads", "DUTS-TR", "DUTS-TR-Image")
     label_dir = Path("..", "..", "Downloads", "DUTS-TR", "DUTS-TR-Mask")
     date = datetime.datetime.now().strftime("%Y%m%d-%H:%M:%S")
 
+    run_dir = Path(model_instances, date)
+
     tf.config.set_visible_devices([], "GPU")
-    train_writer = tf.summary.create_file_writer(f"logs/{date}/train")
-    valid_writer = tf.summary.create_file_writer(f"logs/{date}/valid")
+    train_writer = tf.summary.create_file_writer(run_dir / "train")
+    valid_writer = tf.summary.create_file_writer(run_dir / "valid")
 
     batch_size = 4
     train_ds, val_ds = duts_dataset(img_dir, label_dir, batch_size)
@@ -46,15 +49,16 @@ def main():
     kernel = (3, 3)
     log_every = 5
 
-    x = jnp.zeros((2, IMAGE_SIZE, IMAGE_SIZE, 3))
+    x = jnp.zeros((2, image_size, image_size, 3))
 
     model_config = {
         "mid": mid,
         "out": out,
         "kernel": kernel,
+        "image_size": image_size,
     }
 
-    with open("model.json", "w") as f:
+    with open(run_dir / "model.json", "w") as f:
         json.dump(model_config, f)
 
     model = U2Net(mid, out, kernel)
@@ -140,8 +144,8 @@ def main():
             tf.summary.scalar("mae", val_metrics["mae"].result().numpy(), step=e)
 
         if e % log_every == 0:
-            pickle.dump(params, open("weights.pkl", "wb"))
-            pickle.dump(opt_state, open("optimizer.pkl", "wb"))
+            pickle.dump(params, open(run_dir / "weights.pkl", "wb"))
+            pickle.dump(opt_state, open(run_dir / "optimizer.pkl", "wb"))
 
             with train_writer.as_default():
                 pred_train = model.apply(params, train_jax_img)[..., [0]]

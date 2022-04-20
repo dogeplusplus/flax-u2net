@@ -1,16 +1,19 @@
 import jax
 import json
 import pickle
+import typing as t
 import numpy as np
 import streamlit as st
 import jax.numpy as jnp
 import tensorflow as tf
 
 from PIL import Image
+from pathlib import Path
 from einops import repeat
 
 from u2net.model import U2Net
 from u2net.dataset import normalize_image
+from flax.core.frozen_dict import FrozenDict
 
 
 st.set_page_config(layout="wide")
@@ -18,25 +21,33 @@ tf.config.set_visible_devices([], 'GPU')
 
 
 @st.cache()
-def load_params():
-    return pickle.load(open("weights.pkl", "rb"))
+def load_model(training_run: Path) -> t.Tuple[FrozenDict, t.Dict[str, t.Any]]:
+    weights_path = training_run / "weights.pkl"
+    model_config_path = training_run / "model.json"
+    weights = pickle.load(open(weights_path, "rb"))
+
+    with open(model_config_path, "r") as f:
+        model_config = json.load(f)
+
+    return weights, model_config
 
 
 def main():
-    IMAGE_SIZE = 320
+    model_instances = "models"
 
-    with open("model.json", "r") as f:
-        model_config = json.load(f)
+    runs = list(Path(model_instances).iterdir())
+    selected_run = st.sidebar.selectbox("Training Run", runs)
 
+    params, model_config = load_model(selected_run)
     model = U2Net(model_config["mid"], model_config["out"], model_config["kernel"])
-    params = load_params()
+    image_size = model_config["image_size"]
 
     def predict(image):
         image = np.array(image)
         image = normalize_image(image, -1, 1)
         H, W, C = image.shape
         image = jnp.asarray(image)
-        image = jax.image.resize(image, [IMAGE_SIZE, IMAGE_SIZE, 3],
+        image = jax.image.resize(image, [image_size, image_size, 3],
                                  method="bilinear")
         image = repeat(image, "h w c -> 1 h w c")
         saliency_maps = model.apply(params, image)
