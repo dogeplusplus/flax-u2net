@@ -1,4 +1,5 @@
 import jax
+import json
 import optax
 import pickle
 import datetime
@@ -39,13 +40,23 @@ def main():
     sample_train_img, sample_train_lab = next(iter(train_ds))
     sample_val_img, sample_val_lab = next(iter(val_ds))
 
-    epochs = 30
-    mid = [64] * 11
+    epochs = 100
+    mid = [16] * 11
     out = 64
     kernel = (3, 3)
     log_every = 5
 
     x = jnp.zeros((2, IMAGE_SIZE, IMAGE_SIZE, 3))
+
+    model_config = {
+        "mid": mid,
+        "out": out,
+        "kernel": kernel,
+    }
+
+    with open("model.json", "w") as f:
+        json.dump(model_config, f)
+
     model = U2Net(mid, out, kernel)
     key = random.PRNGKey(0)
     params = model.init(key, x)

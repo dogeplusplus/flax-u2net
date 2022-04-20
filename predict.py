@@ -1,4 +1,5 @@
 import jax
+import json
 import pickle
 import numpy as np
 import streamlit as st
@@ -23,10 +24,11 @@ def load_params():
 
 def main():
     IMAGE_SIZE = 320
-    mid = [16] * 11
-    out = 64
-    kernel = (3, 3)
-    model = U2Net(mid, out, kernel)
+
+    with open("model.json", "r") as f:
+        model_config = json.load(f)
+
+    model = U2Net(model_config["mid"], model_config["out"], model_config["kernel"])
     params = load_params()
 
     def predict(image):
